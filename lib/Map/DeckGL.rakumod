@@ -224,7 +224,7 @@ to render a map using the deck.gl javascript library.
 
 After creating a C<Map::DeckGL> object, you can add layers to it
 using C<add-geojson>, C<add-icon>, and C<add-text> methods.  This
-add respectively, a GeoJsonLayer, an IconLayer, and a TextLayer.
+adds respectively, a GeoJsonLayer, an IconLayer, and a TextLayer.
 
 The C<render> method will return the HTML and Javascript to render
 the map.

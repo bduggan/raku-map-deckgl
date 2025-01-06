@@ -85,7 +85,7 @@ DESCRIPTION
 
 This module provides an interface to generate HTML and Javascript to render a map using the deck.gl javascript library.
 
-After creating a `Map::DeckGL` object, you can add layers to it using `add-geojson`, `add-icon`, and `add-text` methods. This add respectively, a GeoJsonLayer, an IconLayer, and a TextLayer.
+After creating a `Map::DeckGL` object, you can add layers to it using `add-geojson`, `add-icon`, and `add-text` methods. This adds respectively, a GeoJsonLayer, an IconLayer, and a TextLayer.
 
 The `render` method will return the HTML and Javascript to render the map.
 
