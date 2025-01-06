@@ -1,0 +1,25 @@
+{
+  "name" : "Map::DeckGL",
+  "authors" : [
+    "Brian Duggan"
+  ],
+  "provides" : {
+    "Map::DeckGL" : "lib/Map/DeckGL.rakumod",
+    "Map::DeckGL::Utils" : "lib/Map/DeckGL/Utils.rakumod",
+    "Map::DeckGL::Layers" : "lib/Map/DeckGL/Layers.rakumod"
+  },
+  "build-depends" : [ ],
+  "depends" : [
+    "JSON::Fast"
+  ],
+  "description" : "Generate maps using deck.gl",
+  "tags" : [
+    "geo"
+  ],
+  "license" : "MIT",
+  "raku" : "6.*",
+  "version" : "0.0.1",
+  "auth" : "zef:bduggan",
+  "source-url" : "git://github.com/bduggan/raku-map-deckgl.git"
+}
+

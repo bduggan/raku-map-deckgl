@@ -1,0 +1,9 @@
+#!raku
+
+use Test;
+plan 3;
+
+use-ok 'Map::DeckGL';
+use-ok 'Map::DeckGL::Utils';
+use-ok 'Map::DeckGL::Layers';
+

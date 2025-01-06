@@ -1,0 +1,182 @@
+use Test;
+use Map::DeckGL;
+use Map::DeckGL::Layers;
+use JSON::Fast;
+
+plan 7;  # Adjust the plan to match our actual subtests
+
+# Basic instantiation tests
+subtest 'Constructor tests' => {
+    plan 6;
+    
+    my $map = Map::DeckGL.new;
+    isa-ok $map, Map::DeckGL, 'Can create basic instance';
+    is $map.layers.elems, 0, 'Starts with no layers';
+    is $map.mapStyle, 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json', 'Default mapStyle is correct';
+    is-deeply $map.fit-bounds-opts, { padding => 100 }, 'Default fit-bounds-opts are correct';
+    
+    # Test with custom mapStyle
+    my $custom-map = Map::DeckGL.new(mapStyle => 'custom-style.json');
+    is $custom-map.mapStyle, 'custom-style.json', 'Custom mapStyle is accepted';
+    
+    # Test with custom fit-bounds-opts
+    my $custom-bounds = Map::DeckGL.new(fit-bounds-opts => { padding => 200, maxZoom => 10 });
+    is-deeply $custom-bounds.fit-bounds-opts, { padding => 200, maxZoom => 10 }, 'Custom fit-bounds-opts are accepted';
+};
+
+# Layer addition tests
+subtest 'Layer addition' => {
+    plan 12;
+    
+    my $map = Map::DeckGL.new;
+    
+    # Test GeoJSON layer
+    my $geojson = {
+        type => 'Feature',
+        geometry => {
+            type => 'Point',
+            coordinates => [0, 0]
+        },
+        properties => {}
+    };
+    my $geojson-layer = $map.add-geojson($geojson, id => 'test-layer');
+    isa-ok $geojson-layer, Map::DeckGL::GeoJsonLayer, 'Returns GeoJSON layer';
+    is $map.layers.elems, 1, 'Layer was added';
+    is $geojson-layer.data, $geojson, 'GeoJSON data is stored correctly';
+    
+    # Test Icon layer (named parameters)
+    my $icon1 = $map.add-icon(:lat(10), :lon(20), :size(48));
+    isa-ok $icon1, Map::DeckGL::IconLayer, 'Returns Icon layer';
+    is $map.layers.elems, 2, 'Second layer was added';
+    is-deeply $icon1.getPosition, [20, 10], 'Icon position is correct';
+    
+    # Test Icon layer (positional parameters)
+    my $icon2 = $map.add-icon(30, 40, size => 32);
+    isa-ok $icon2, Map::DeckGL::IconLayer, 'Returns Icon layer (positional)';
+    is $map.layers.elems, 3, 'Third layer was added';
+    is-deeply $icon2.getPosition, [40, 30], 'Icon position is correct (positional)';
+    
+    # Test adding multiple layers
+    $map.add-text(0, 0, 'Test 1');
+    $map.add-text(1, 1, 'Test 2');
+    $map.add-icon(:lat(2), :lon(2));
+    is $map.layers.elems, 6, 'Multiple layers can be added';
+    
+    # Test layer order
+    like $map.layers[3].getText<f>, /'Test 1'/, 'Layers maintain addition order';
+    like $map.layers[4].getText<f>, /'Test 2'/, 'Layers maintain addition order';
+};
+
+# Text layer tests
+subtest 'Text layer' => {
+    plan 8;
+    
+    my $map = Map::DeckGL.new;
+    my $text = $map.add-text(50, 60, 'Test Label', size => 16, color => [255,0,0]);
+    isa-ok $text, Map::DeckGL::TextLayer, 'Returns Text layer';
+    is $map.layers.elems, 1, 'Layer was added';
+    is-deeply $text.getPosition, [60, 50], 'Text position is correct';
+    like $text.getText<f>, /'Test Label'/, 'Text content is correct';
+    
+    # Test multiple text layers
+    my $text2 = $map.add-text(51, 61, 'Second Label');
+    is $map.layers.elems, 2, 'Second text layer was added';
+    is-deeply $text2.getPosition, [61, 51], 'Second text position is correct';
+    
+    # Test empty text
+    my $empty-text = $map.add-text(0, 0, '');
+    like $empty-text.getText<f>, /''/, 'Empty text is handled';
+    
+    # Test text with special characters
+    my $special-text = $map.add-text(0, 0, 'Test "quotes" & <special> chars');
+    like $special-text.getText<f>, /'Test "quotes" & <special> chars'/, 'Special characters are handled';
+};
+
+# View state tests
+subtest 'View state handling' => {
+    plan 6;
+    
+    my $map = Map::DeckGL.new(
+        initialViewState => {
+            longitude => 10,
+            latitude => 20,
+            zoom => 5,
+            pitch => 40,
+            bearing => 0
+        }
+    );
+    
+    my $rendered = $map.render;
+    like $rendered, /'longitude": 10'/, 'Longitude is in output';
+    like $rendered, /'latitude": 20'/, 'Latitude is in output';
+    like $rendered, /'zoom": 5'/, 'Zoom is in output';
+    like $rendered, /'pitch": 40'/, 'Pitch is in output';
+    like $rendered, /'bearing": 0'/, 'Bearing is in output';
+    
+    # Test empty initialViewState
+    my $default-map = Map::DeckGL.new;
+    like $default-map.render, /'initialViewState'/, 'Default view state is handled';
+};
+
+# HTML structure tests
+subtest 'HTML output structure' => {
+    plan 8;
+    
+    my $map = Map::DeckGL.new;
+    my $rendered = $map.render;
+    
+    like $rendered, /^'<!DOCTYPE html>'/, 'Has DOCTYPE';
+    like $rendered, /'<script src="https://unpkg.com/deck.gl@latest/dist.min.js">'/, 'Includes deck.gl script';
+    like $rendered, /'<script src="https://unpkg.com/turf@3.0.14/turf.min.js">'/, 'Includes turf.js script';
+    like $rendered, /'<script src="https://unpkg.com/maplibre-gl@3.0.0/dist/maplibre-gl.js">'/, 'Includes maplibre script';
+    like $rendered, /'<link href="https://unpkg.com/maplibre-gl@3.0.0/dist/maplibre-gl.css"'/, 'Includes maplibre CSS';
+    like $rendered, /'<div id="deckgl">'/, 'Has deck.gl container';
+    like $rendered, /'<style>'.*?'#deckgl { height: 95vh; width: 95vw; }'/, 'Has default styling';
+    like $rendered, /'<div id="deckwrapper"'/, 'Has wrapper div';
+};
+
+# Custom styling tests
+subtest 'Custom styling' => {
+    plan 4;
+    
+    my $custom-style = '#deckgl { height: 100vh; }';
+    my $map = Map::DeckGL.new(page-style => $custom-style);
+    my $rendered = $map.render;
+    
+    like $rendered, /'height: 100vh'/, 'Custom height is applied';
+    unlike $rendered, /'height: 95vh'/, 'Default height is not present';
+    
+    # Test multiple style rules
+    $map = Map::DeckGL.new(page-style => '#deckgl { height: 100vh; } #deckwrapper { margin: 10px; }');
+    $rendered = $map.render;
+    like $rendered, /'height: 100vh'.*'margin: 10px'/, 'Multiple style rules are applied';
+    like $rendered, /'<style>'/, 'Style tag is present';
+};
+
+# Bounds calculation tests
+subtest 'Bounds calculation' => {
+    plan 6;
+    
+    my $map = Map::DeckGL.new;
+    $map.add-icon(0, 0);
+    $map.add-icon(10, 10);
+    
+    my $rendered = $map.render;
+    like $rendered, /'bounds = dgl_extend'/, 'Bounds extension is present';
+    like $rendered, /'fitBounds'/, 'fitBounds calculation is present';
+    like $rendered, /'WebMercatorViewport'/, 'Uses WebMercatorViewport';
+    
+    # Test bounds with GeoJSON
+    my $geojson = {
+        type => 'Feature',
+        geometry => {
+            type => 'Polygon',
+            coordinates => [[[0,0], [1,0], [1,1], [0,1], [0,0]]]
+        }
+    };
+    $map.add-geojson($geojson);
+    $rendered = $map.render;
+    like $rendered, /'turf.bbox'/, 'Uses turf.bbox for GeoJSON';
+    like $rendered, /'bounds = dgl_extend'/, 'Extends bounds with GeoJSON';
+    like $rendered, /'const' .* '{DeckGL,'/, 'Includes DeckGL in destructuring';
+};

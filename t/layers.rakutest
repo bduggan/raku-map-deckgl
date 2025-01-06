@@ -1,0 +1,145 @@
+use Test;
+use Map::DeckGL::Layers;
+use Map::DeckGL::Utils;
+use JSON::Fast;
+
+plan 4;
+
+# BaseLayer tests remain the same...
+subtest 'BaseLayer tests' => {
+    plan 10;
+    
+    my $layer = Map::DeckGL::BaseLayer.new(
+        id => 'test-layer',
+        visible => True,
+        opacity => 0.8,
+        pickable => True,
+        highlightColor => [255, 0, 0],
+        autoHighlight => True,
+        coordinateSystem => 1
+    );
+    
+    # Tests remain the same...
+    is $layer.id, 'test-layer', 'ID is set correctly';
+    is $layer.visible, True, 'Visibility is set';
+    is $layer.opacity, 0.8, 'Opacity is set';
+    is $layer.pickable, True, 'Pickable property is set';
+    is-deeply $layer.highlightColor, [255, 0, 0], 'Highlight color is set';
+    is $layer.autoHighlight, True, 'Auto highlight is set';
+    is $layer.coordinateSystem, 1, 'Coordinate system is set';
+    
+    my $default_layer = Map::DeckGL::BaseLayer.new;
+    ok $default_layer.has-bounds, 'Default layer has bounds';
+    nok $default_layer.visible.defined, 'Visible is not set by default';
+    nok $default_layer.opacity.defined, 'Opacity is not set by default';
+};
+
+# Test IconLayer - focus on this first since it's showing failures
+subtest 'IconLayer tests' => {
+    plan 12;
+    
+    my $layer = Map::DeckGL::IconLayer.new(
+        getPosition => [10, 20],
+        getSize => 50,
+        getColor => [255, 0, 0],
+        getIcon => "d => 'custom-icon'",
+        billboard => True,
+        alphaCutoff => 0.5
+    );
+    
+    # Property tests
+    ok $layer.name ~~ /^'icon_'\d+$/, 'Name is auto-generated correctly';
+    is-deeply $layer.getPosition, [10, 20], 'Position is set correctly';
+    is $layer.getSize, 50, 'Size is set correctly';
+    is-deeply $layer.getColor, [255, 0, 0], 'Color is set correctly';
+    is $layer.getIcon, "d => 'custom-icon'", 'Icon getter is set';
+    is $layer.billboard, True, 'Billboard property is set';
+    is $layer.alphaCutoff, 0.5, 'Alpha cutoff is set';
+    
+    # Rendering tests with exact output matching
+    my $rendered = $layer.render;
+    
+    # Debug: print actual output
+    # note "Rendered output:\n$rendered";
+    
+    like $rendered, /'new IconLayer'/, 'Creates IconLayer instance';
+    
+    # Use more flexible pattern matching that accounts for possible ordering
+    like $rendered, /getPosition .* '10'/, 'Includes position';
+    like $rendered, /'getSize: 50'/, 'Includes size';
+    like $rendered, /getColor  .* '255'/, 'Includes color';
+    like $rendered, /'billboard: true'/, 'Includes billboard setting';
+};
+
+# GeoJsonLayer tests
+subtest 'GeoJsonLayer tests' => {
+    plan 12;
+    
+    my $geojson = {
+        type => 'Feature',
+        geometry => {
+            type => 'Point',
+            coordinates => [0, 0]
+        },
+        properties => {}
+    };
+    
+    my $layer = Map::DeckGL::GeoJsonLayer.new(
+        data => $geojson,
+        filled => True,
+        getFillColor => [255, 0, 0, 255],
+        stroked => True,
+        getLineColor => [0, 0, 255, 255],
+        lineWidthMinPixels => 3
+    );
+    
+    # Property tests
+    ok $layer.name ~~ /^'geojson_'\d+$/, 'Name is auto-generated correctly';
+    is $layer.filled, True, 'Filled property is set';
+    is-deeply $layer.getFillColor, [255, 0, 0, 255], 'Fill color is set';
+    is $layer.stroked, True, 'Stroked property is set';
+    is-deeply $layer.getLineColor, [0, 0, 255, 255], 'Line color is set';
+    is $layer.lineWidthMinPixels, 3, 'Line width min pixels is set';
+    
+    my $rendered = $layer.render;
+    like $rendered, /'new GeoJsonLayer'/, 'Creates GeoJsonLayer instance';
+    like $rendered, /'filled: true'/, 'Includes filled property';
+    like $rendered, /getFillColor .* '255'/, 'Includes fill color';
+    like $rendered, /'stroked: true'/, 'Includes stroked property';
+    like $rendered, /getLineColor  .* '255'/, 'Includes line color';
+    like $rendered, /'lineWidthMinPixels: 3'/, 'Includes line width setting';
+};
+
+# Text Layer tests
+subtest 'TextLayer tests' => {
+    plan 14;
+    
+    my $layer = Map::DeckGL::TextLayer.new(
+        getPosition => [30, 40],
+        getText => { f => "'Sample Text'" },
+        getColor => [0, 255, 0],
+        getSize => 16,
+        fontFamily => 'Arial',
+        background => True,
+        getBackgroundColor => [0, 0, 0, 128],
+        maxWidth => 200
+    );
+    
+    # Property tests
+    ok $layer.name ~~ /^'text_'\d+$/, 'Name is auto-generated correctly';
+    is-deeply $layer.getPosition, [30, 40], 'Position is set correctly';
+    is-deeply $layer.getText, { f => "'Sample Text'" }, 'Text is set correctly';
+    is-deeply $layer.getColor, [0, 255, 0], 'Color is set correctly';
+    is $layer.getSize, 16, 'Size is set correctly';
+    is $layer.fontFamily, 'Arial', 'Font family is set';
+    is $layer.background, True, 'Background is enabled';
+    is-deeply $layer.getBackgroundColor, [0, 0, 0, 128], 'Background color is set';
+    is $layer.maxWidth, 200, 'Max width is set';
+    
+    my $rendered = $layer.render;
+    like $rendered, /'new TextLayer'/, 'Creates TextLayer instance';
+    like $rendered, /'getPosition'.* '30'/, 'Includes position';
+    like $rendered, /getText.*Sample/, 'Includes text';
+    like $rendered, /getColor .* '255' /, 'Includes color';
+    like $rendered, /'maxWidth: 200'/, 'Includes max width';
+};
