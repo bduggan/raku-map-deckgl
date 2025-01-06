@@ -164,7 +164,7 @@ my %geojson =
     },
   ];
 
-$map.add-geojson:	%geojson,
+$map.add-geojson: %geojson,
   getFillColor => [255,0,0,128],
   getLineColor => [0,255,0,255];
 
@@ -196,7 +196,7 @@ correspond to the DeckGL classes, and added via the C<add-layer> method.
 
 =begin code
 
-$map.add-geojson:	%geojson, getFillColor => [255,0,0,128], getLineColor => [0,255,0,255];
+$map.add-geojson: %geojson, getFillColor => [255,0,0,128], getLineColor => [0,255,0,255];
 
 =end code
 

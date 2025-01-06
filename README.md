@@ -33,7 +33,7 @@ SYNOPSIS
         },
       ];
 
-    $map.add-geojson:	%geojson,
+    $map.add-geojson: %geojson,
       getFillColor => [255,0,0,128],
       getLineColor => [0,255,0,255];
 
@@ -59,7 +59,7 @@ METHODS
 method add-geojson
 ------------------
 
-    $map.add-geojson:	%geojson, getFillColor => [255,0,0,128], getLineColor => [0,255,0,255];
+    $map.add-geojson: %geojson, getFillColor => [255,0,0,128], getLineColor => [0,255,0,255];
 
 Add a GeoJsonLayer to the map. The first argument is a hash representing the GeoJson data. The remaining arguments are options to the GeoJsonLayer constructor. They correspond to the properties of the javascript object which can be found in the deck.gl documentation: https://deck.gl/docs/api-reference/layers/geojson-layer
 
