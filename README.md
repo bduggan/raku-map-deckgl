@@ -9,38 +9,7 @@ Map::DeckGL - Generate maps using deck.gl
 SYNOPSIS
 ========
 
-    use Map::DeckGL;
-
-    my $map = Map::DeckGL.new;
-
-    my %geojson =
-      type => 'FeatureCollection',
-      features => [
-        {
-          type => 'Feature',
-          geometry => {
-            type => 'Polygon',
-            coordinates => [
-              [
-                [-73.986454, 40.757722],
-                [-73.986454, 40.758146],
-                [-73.986129, 40.758146],
-                [-73.986129, 40.757722],
-                [-73.986454, 40.757722],
-              ],
-            ],
-          },
-        },
-      ];
-
-    $map.add-geojson: %geojson,
-      getFillColor => [255,0,0,128],
-      getLineColor => [0,255,0,255];
-
-    $map.add-icon: 40.757722, -73.986454;
-    $map.add-text: 40.757722, -73.986454, 'times square';
-
-    spurt 'out.html', $map.render;
+Put some text on a map:
 
     my $deck = Map::DeckGL.new: initialViewState => zoom => 10;
     $deck.add-text: 40.7128, -74.0060, "Hello, World!";
@@ -75,6 +44,41 @@ SYNOPSIS
     say "wrote out.html";
 
 ![img](https://github.com/user-attachments/assets/d38359ba-8b60-4467-9571-224a3bd83188)
+
+Put some some icons and geojson on a map:
+
+    use Map::DeckGL;
+
+    my $map = Map::DeckGL.new;
+
+    my %geojson =
+      type => 'FeatureCollection',
+      features => [
+        {
+          type => 'Feature',
+          geometry => {
+            type => 'Polygon',
+            coordinates => [
+              [
+                [-73.986454, 40.757722],
+                [-73.986454, 40.758146],
+                [-73.986129, 40.758146],
+                [-73.986129, 40.757722],
+                [-73.986454, 40.757722],
+              ],
+            ],
+          },
+        },
+      ];
+
+    $map.add-geojson: %geojson,
+      getFillColor => [255,0,0,128],
+      getLineColor => [0,255,0,255];
+
+    $map.add-icon: 40.757722, -73.986454;
+    $map.add-text: 40.757722, -73.986454, 'times square';
+
+    spurt 'out.html', $map.render;
 
 DESCRIPTION
 ===========
