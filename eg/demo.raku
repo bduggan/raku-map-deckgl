@@ -2,7 +2,8 @@
 
 use Map::DeckGL;
 
-my $map = Map::DeckGL.new;
+my $map = Map::DeckGL.new: initialViewState => %( :pitch(75), :zoom(17) );
+
 
 my %geojson =
   type => 'FeatureCollection',
@@ -25,11 +26,14 @@ my %geojson =
   ];
 
 $map.add-geojson:	%geojson,
-  getFillColor => [255,0,0,128],
-  getLineColor => [0,255,0,255];
+  getFillColor => [19, 126, 109, 255],
+  getLineColor => [126, 19, 109, 255];
 
-$map.add-icon: 40.757722, -73.986454;
-$map.add-text: 40.757722, -73.986454, 'times square';
+$map.add-icon: 40.757722, -73.986454, getSize => f => 100;
+$map.add-text: 40.757722, -73.986454, 'times square',
+  backgroundColor => [255, 255, 255, 100],
+  getBorderColor => [0, 0, 0],
+  getBorderWidth => 2;
 
 spurt 'out.html', $map.render;
 
