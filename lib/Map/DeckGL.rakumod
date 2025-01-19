@@ -3,6 +3,8 @@ unit class Map::DeckGL;
 use Map::DeckGL::Layers;
 use JSON::Fast;
 
+has $.output-path = 'map-deck-gl-tmp.html';
+
 has @.layers;
 
 # options: https://deck.gl/docs/api-reference/carto/basemap
@@ -20,7 +22,11 @@ has $.page-style = q:to/CSS/;
   #deckwrapper { border: 1px solid black; }
   CSS
 
-method add-geojson(Hash $geojson, *%opts) {
+multi method add-geojson(Str $geojson, *%opts) {
+  self.add-geojson: from-json($geojson), |%opts;
+}
+
+multi method add-geojson(Hash $geojson, *%opts) {
   my $new = Map::DeckGL::GeoJsonLayer.new: data => $geojson, |%opts;
   self.add-layer($new);
   $new;
@@ -130,6 +136,22 @@ method render {
   HTML
 }
 
+method write {
+  my $filename = $.output-path.IO;
+  my $is-new = not $filename.e;
+  $filename.spurt: self.render;
+  return $is-new;
+}
+
+method show {
+  my $filename = $.output-path.IO;
+  self.write;
+  my $cmd = $*DISTRO.is-win ?? 'start'
+          !! $*DISTRO ~~ /macos/ ?? 'open'
+          !! 'xdg-open';
+  run <<$cmd $filename>>;
+}
+
 =begin pod
 
 =head1 NAME
@@ -145,6 +167,7 @@ Put some text on a map:
 use Map::DeckGL;
 
 my $deck = Map::DeckGL.new: initialViewState => zoom => 10;
+
 $deck.add-text: 40.7128, -74.0060, "Hello, World!";
 
 my @boroughs = [
@@ -166,8 +189,7 @@ for @boroughs -> $lat, $lng, $name, $color {
         getBorderWidth => 2;
 }
 
-"out.html".IO.spurt: $deck.render;
-say "wrote out.html";
+$deck.show;
 
 =end code
 
@@ -212,7 +234,7 @@ $map.add-text: 40.757722, -73.986454, 'times square',
   getBorderColor => [0, 0, 0],
   getBorderWidth => 2;
 
-spurt 'out.html', $map.render;
+$map.show;
 
 =end code
 
@@ -303,7 +325,32 @@ spurt 'out.html', $map.render;
 
 Return the HTML and Javascript to render the map.
 
+=head2 method write
+
+=begin code
+
+$map.write;
+
+=end code
+
+Write the HTML and Javascript to a file.  The default filename is 'map-deck-gl-tmp.html'.
+Returns true if the file was created, false if it already existed.
+
+=head2 method show
+
+=begin code
+
+$map.show;
+
+=end code
+
+Write the HTML and Javascript to a file, and open it in a browser.
+
 =head1 ATTRIBUTES
+
+=head2 output-path
+
+Where to write the file when calling C<write>.  Defaults to 'map-deck-gl-tmp.html'.
 
 =head2 mapStyle
 

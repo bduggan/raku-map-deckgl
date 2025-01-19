@@ -41,7 +41,7 @@ my $i = 0;
 
 class Map::DeckGL::GeoJsonLayer is Map::DeckGL::BaseLayer does DeckObj is export {
   has $.name = 'geojson_' ~ $i++;
-  has Str $.PointType;
+  has Str $.pointType;
   has Bool $.filled;
   has $.getFillColor = [0, 100, 255, 150];
 
@@ -59,7 +59,7 @@ class Map::DeckGL::GeoJsonLayer is Map::DeckGL::BaseLayer does DeckObj is export
   has Bool $.extruded;
   has Bool $.wireframe;
   has $.getElevation;
-  has Bool $.elevationScale;
+  has Numeric $.elevationScale;
   has $.material;
 
   #  export type _GeoJsonLayerPointCircleProps<FeaturePropertiesT> = {

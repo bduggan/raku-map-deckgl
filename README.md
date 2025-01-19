@@ -14,6 +14,7 @@ Put some text on a map:
     use Map::DeckGL;
 
     my $deck = Map::DeckGL.new: initialViewState => zoom => 10;
+
     $deck.add-text: 40.7128, -74.0060, "Hello, World!";
 
     my @boroughs = [
@@ -35,8 +36,7 @@ Put some text on a map:
             getBorderWidth => 2;
     }
 
-    "out.html".IO.spurt: $deck.render;
-    say "wrote out.html";
+    $deck.show;
 
 ![img](https://github.com/user-attachments/assets/76a771cd-2337-4858-bfc0-0dca80a0d783)
 
@@ -77,7 +77,7 @@ Put some some icons and geojson on a map:
       getBorderColor => [0, 0, 0],
       getBorderWidth => 2;
 
-    spurt 'out.html', $map.render;
+    $map.show;
 
 ![img](https://github.com/user-attachments/assets/cf7e5dfd-288e-4865-9ee6-d3dcdea62a9c)
 
@@ -138,8 +138,27 @@ method render
 
 Return the HTML and Javascript to render the map.
 
+method write
+------------
+
+    $map.write;
+
+Write the HTML and Javascript to a file. The default filename is 'map-deck-gl-tmp.html'. Returns true if the file was created, false if it already existed.
+
+method show
+-----------
+
+    $map.show;
+
+Write the HTML and Javascript to a file, and open it in a browser.
+
 ATTRIBUTES
 ==========
+
+output-path
+-----------
+
+Where to write the file when calling `write`. Defaults to 'map-deck-gl-tmp.html'.
 
 mapStyle
 --------

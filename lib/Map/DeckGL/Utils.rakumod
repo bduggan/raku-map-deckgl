@@ -13,10 +13,11 @@ sub option-string(%options) {
 }
 
 sub quote-value($value) is export {
+  my $pretty = so %*ENV<MAP_DECKGL_JSON_PRETTY>;
   given $value {
     when Str { "'" ~ escape-val($value) ~ "'" }
     when Bool { $value ?? 'true' !! 'false' }
-    when Hash { to-json($value, :!pretty) }
+    when Hash { to-json($value, :$pretty) }
     when Numeric { $value }
     when .^name ~~ /Leaflet/ { $value.Str }
     when Array|List { '[' ~ $value.map({ quote-value($_) }).join(', ') ~ ']' }
