@@ -252,7 +252,7 @@ adds respectively, a GeoJsonLayer, an IconLayer, and a TextLayer.
 The C<render> method will return the HTML and Javascript to render
 the map.
 
-Alternatively, layers can be generate direcly by using classes which
+Alternatively, layers can be generated directly by using classes which
 correspond to the DeckGL classes, and added via the C<add-layer> method.
 
 =head1 METHODS
