@@ -90,7 +90,7 @@ After creating a `Map::DeckGL` object, you can add layers to it using `add-geojs
 
 The `render` method will return the HTML and Javascript to render the map.
 
-Alternatively, layers can be generate direcly by using classes which correspond to the DeckGL classes, and added via the `add-layer` method.
+Alternatively, layers can be generated directly by using classes which correspond to the DeckGL classes, and added via the `add-layer` method.
 
 METHODS
 =======
