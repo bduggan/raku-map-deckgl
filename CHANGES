@@ -1,11 +1,15 @@
+0.0.4 2025-01-24
+   - add export behavior
+   - docfix, thanks SergeCroise
+
 0.0.3 2025-01-19
-   improve docs, add write+show, accept geojson hash
-   fix pointType and elevationScale
-   allow MAP_DECK_GL_JSON_PRETTY
+   - improve docs, add write+show, accept geojson hash
+   - fix pointType and elevationScale
+   - allow MAP_DECK_GL_JSON_PRETTY
 
 0.0.2 2025-01-06
-   better example
+   - better example
 
 0.0.1  2024-01-01
-   Initial release
+   - Initial release
 
