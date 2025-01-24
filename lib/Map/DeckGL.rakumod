@@ -1,4 +1,4 @@
-unit class Map::DeckGL;
+class Map::DeckGL {
 
 use Map::DeckGL::Layers;
 use JSON::Fast;
@@ -255,6 +255,20 @@ the map.
 Alternatively, layers can be generated directly by using classes which
 correspond to the DeckGL classes, and added via the C<add-layer> method.
 
+=head1 EXPORTS
+
+If an argument is given to the module, a new C<Map::DeckGL> object
+is created and returned with that name.  e.g.
+
+   use Map::DeckGL 'deck';
+   deck.add-text: 40.7128, -74.0060, "Hello, World!
+
+is equivalent to
+
+   use Map::DeckGL;
+   my $deck = Map::DeckGL.new;
+   $deck.add-text: 40.7128, -74.0060, "Hello, World!
+
 =head1 METHODS
 
 =head2 method add-geojson
@@ -386,3 +400,10 @@ Brian Duggan
 
 =end pod
 
+}
+
+sub EXPORT($name = Nil) {
+  return %( ) without $name;
+  my $obj = Map::DeckGL.new;
+  %( $name => $obj );
+}

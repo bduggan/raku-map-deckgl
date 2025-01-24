@@ -1,8 +1,7 @@
 #!raku
 
-use Map::DeckGL;
+use Map::DeckGL '$deck';
 
-my $deck = Map::DeckGL.new: initialViewState => zoom => 10;
 $deck.add-text: 40.7128, -74.0060, "Hello, World!";
 
 my @boroughs = [
@@ -24,6 +23,5 @@ for @boroughs -> $lat, $lng, $name, $color {
         getBorderWidth => 2;
 }
 
-"out.html".IO.spurt: $deck.render;
-say "wrote out.html";
+$deck.show;
 

@@ -92,6 +92,20 @@ The `render` method will return the HTML and Javascript to render the map.
 
 Alternatively, layers can be generated directly by using classes which correspond to the DeckGL classes, and added via the `add-layer` method.
 
+EXPORTS
+=======
+
+If an argument is given to the module, a new `Map::DeckGL` object is created and returned with that name. e.g.
+
+    use Map::DeckGL 'deck';
+    deck.add-text: 40.7128, -74.0060, "Hello, World!
+
+is equivalent to
+
+    use Map::DeckGL;
+    my $deck = Map::DeckGL.new;
+    $deck.add-text: 40.7128, -74.0060, "Hello, World!
+
 METHODS
 =======
 
