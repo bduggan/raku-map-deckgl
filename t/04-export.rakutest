@@ -1,0 +1,10 @@
+#!raku
+
+use Test;
+use Map::DeckGL 'deckgl';
+
+plan 2;
+
+ok deckgl, 'exported deckgl';
+like deckgl.render, /html/, 'render';
+
